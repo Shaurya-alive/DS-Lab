@@ -2,261 +2,255 @@
 /*Name  : Shaurya Ranjan
   RollNo:   1024030694*/
 
-#include<iostream>
-
+#include <iostream>
 using namespace std;
-void Display2D(int (&arr)[][3],int n){
-    for(int i=0; i<n; i++){
-        for(int j=0; j<3; j++){
-            cout<<arr[i][j]<<"\t";
+
+void Display2D(int **arr, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            cout << arr[i][j] << "\t";
         }
-        cout<<endl;
+        cout << endl;
     }
 }
 
-
-void swapnum(int &a, int &b){
-    int temp= a;
-    a=b;
-    b=temp;
-}
-
-
-void Sort2D(int (&arr)[][3], int n) {
-    for (int i = 1; i < n - 1; i++) {
-        for (int j = i + 1; j < n; j++) {
-            if (arr[i][0] > arr[j][0] ||
-               (arr[i][0] == arr[j][0] && arr[i][1] > arr[j][1])) {
-                // Swap entire rows
-                for (int k = 0; k < 3; k++) {
-                    swap(arr[i][k],arr[j][k]);
+void Sort2D(int **arr, int n)
+{
+    for (int i = 1; i < n - 1; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arr[i][0] > arr[j][0] || (arr[i][0] == arr[j][0] && arr[i][1] > arr[j][1]))
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    int t = arr[i][k];
+                    arr[i][k] = arr[j][k];
+                    arr[j][k] = t;
                 }
             }
         }
     }
 }
 
-
-
-void Transpose(int (&arr)[][3], int (&dest)[][3],int n) {
-    dest[0][0] = arr[0][1]; // rows of dest = cols of src
-    dest[0][1] = arr[0][0]; // cols of dest = rows of src
-    dest[0][2] = arr[0][2]; // same nnz
-
-    for (int i = 1; i < n; i++) {
-        dest[i][0] = arr[i][1];
-        dest[i][1] = arr[i][0];
-        dest[i][2] = arr[i][2];
+void Transpose(int **a, int **b, int n)
+{
+    b[0][0] = a[0][1];
+    b[0][1] = a[0][0];
+    b[0][2] = a[0][2];
+    for (int i = 1; i < n; i++)
+    {
+        b[i][0] = a[i][1];
+        b[i][1] = a[i][0];
+        b[i][2] = a[i][2];
     }
-
-    Sort2D(dest, n);
+    Sort2D(b, n);
 }
 
-
-
-void AddSparse(int (&a)[][3], int (&b)[][3], int (&res)[][3]) {
-    int rows = a[0][0], cols = a[0][1];
+void AddSparse(int **a, int **b, int **r)
+{
     int i = 1, j = 1, k = 1;
-    int totalA = a[0][2], totalB = b[0][2];
-
-    // Add metadata
-    res[0][0] = rows;
-    res[0][1] = cols;
-
-    while (i <= totalA && j <= totalB) {
-        // Compare row, then col
-        if (a[i][0] == b[j][0] && a[i][1] == b[j][1]) {
-            int sum = a[i][2] + b[j][2];
-            if (sum != 0) {
-                res[k][0] = a[i][0];
-                res[k][1] = a[i][1];
-                res[k][2] = sum;
+    r[0][0] = a[0][0];
+    r[0][1] = a[0][1];
+    while (i <= a[0][2] && j <= b[0][2])
+    {
+        if (a[i][0] == b[j][0] && a[i][1] == b[j][1])
+        {
+            int s = a[i][2] + b[j][2];
+            if (s != 0)
+            {
+                r[k][0] = a[i][0];
+                r[k][1] = a[i][1];
+                r[k][2] = s;
                 k++;
             }
             i++;
             j++;
         }
-        else if (a[i][0] < b[j][0] || 
-                (a[i][0] == b[j][0] && a[i][1] < b[j][1])) {
-            res[k][0] = a[i][0];
-            res[k][1] = a[i][1];
-            res[k][2] = a[i][2];
+        else if (a[i][0] < b[j][0] || (a[i][0] == b[j][0] && a[i][1] < b[j][1]))
+        {
+            r[k][0] = a[i][0];
+            r[k][1] = a[i][1];
+            r[k][2] = a[i][2];
             k++;
             i++;
         }
-        else {
-            res[k][0] = b[j][0];
-            res[k][1] = b[j][1];
-            res[k][2] = b[j][2];
+        else
+        {
+            r[k][0] = b[j][0];
+            r[k][1] = b[j][1];
+            r[k][2] = b[j][2];
             k++;
             j++;
         }
     }
-
-    // Remaining elements in A
-    while (i <= totalA) {
-        res[k][0] = a[i][0];
-        res[k][1] = a[i][1];
-        res[k][2] = a[i][2];
+    while (i <= a[0][2])
+    {
+        r[k][0] = a[i][0];
+        r[k][1] = a[i][1];
+        r[k][2] = a[i][2];
         k++;
         i++;
     }
-
-    // Remaining elements in B
-    while (j <= totalB) {
-        res[k][0] = b[j][0];
-        res[k][1] = b[j][1];
-        res[k][2] = b[j][2];
+    while (j <= b[0][2])
+    {
+        r[k][0] = b[j][0];
+        r[k][1] = b[j][1];
+        r[k][2] = b[j][2];
         k++;
         j++;
     }
-
-    // Update total non-zero count
-    res[0][2] = k - 1;
+    r[0][2] = k - 1;
 }
 
-
-void MultiplySparse(int (&A)[][3], int (&B)[][3], int (&Result)[][3]) {
-    if (A[0][1] != B[0][0]) {
-        cout << "Multiplication not possible!\n";
-        Result[0][2] = 0;
+void MultiplySparse(int **A, int **B, int **R)
+{
+    if (A[0][1] != B[0][0])
+    {
+        R[0][2] = 0;
         return;
     }
+    int nB = B[0][2] + 1;
+    int **BT = new int *[nB];
+    for (int i = 0; i < nB; i++)
+        BT[i] = new int[3];
+    Transpose(B, BT, nB);
 
-    int BT[B[0][2]+1][3];
-    Transpose(B, BT, B[0][2]+1);
-
-    Result[0][0] = A[0][0];
-    Result[0][1] = B[0][1];
-    int k = 1; // index for Result
-
-    // For each row in A
-    int rowBeginA = 1;
-    while (rowBeginA <= A[0][2]) {
-        int rowA = A[rowBeginA][0];
-
-        // Find end of this row in A
-        int rowEndA = rowBeginA;
-        while (rowEndA <= A[0][2] && A[rowEndA][0] == rowA)
-            rowEndA++;
-
-        // For each row in BT (which corresponds to column in B)
-        int rowBeginB = 1;
-        while (rowBeginB <= BT[0][2]) {
-            int rowB = BT[rowBeginB][0];
-
-            // Find end of this row in BT
-            int rowEndB = rowBeginB;
-            while (rowEndB <= BT[0][2] && BT[rowEndB][0] == rowB)
-                rowEndB++;
-
-            // Multiply rowA from A with rowB from BT
-            int i = rowBeginA;
-            int j = rowBeginB;
-            int sum = 0;
-
-            while (i < rowEndA && j < rowEndB) {
-                if (A[i][1] == BT[j][1]) {
-                    sum += A[i][2] * BT[j][2];
-                    i++; j++;
-                }
-                else if (A[i][1] < BT[j][1]) {
+    R[0][0] = A[0][0];
+    R[0][1] = B[0][1];
+    int k = 1;
+    int ra = 1;
+    while (ra <= A[0][2])
+    {
+        int rA = A[ra][0];
+        int endA = ra;
+        while (endA <= A[0][2] && A[endA][0] == rA)
+            endA++;
+        int rb = 1;
+        while (rb <= BT[0][2])
+        {
+            int rB = BT[rb][0];
+            int endB = rb;
+            while (endB <= BT[0][2] && BT[endB][0] == rB)
+                endB++;
+            int i = ra, j = rb, s = 0;
+            while (i < endA && j < endB)
+            {
+                if (A[i][1] == BT[j][1])
+                {
+                    s += A[i][2] * BT[j][2];
                     i++;
-                }
-                else {
                     j++;
                 }
+                else if (A[i][1] < BT[j][1])
+                    i++;
+                else
+                    j++;
             }
-
-            if (sum != 0) {
-                Result[k][0] = rowA;
-                Result[k][1] = rowB;
-                Result[k][2] = sum;
+            if (s != 0)
+            {
+                R[k][0] = rA;
+                R[k][1] = rB;
+                R[k][2] = s;
                 k++;
             }
-
-            rowBeginB = rowEndB; // move to next row in BT
+            rb = endB;
         }
-
-        rowBeginA = rowEndA; // move to next row in A
+        ra = endA;
     }
-
-    Result[0][2] = k - 1;
+    R[0][2] = k - 1;
+    for (int i = 0; i < nB; i++)
+        delete[] BT[i];
+    delete[] BT;
 }
-
-
 
 int main()
 {
-  int mat[4][4]={{0,8,9},{3,0,0},{0,0,7},{2,4,5}};
-  int mat2[4][4]={{1,9,0},{7,0,0},{0,8,9},{0,0,0}};
-  int n=sizeof(mat)/sizeof(mat[0]);
-  int cnt=0;
-  for(int i=0; i<n; i++){
-      for(int j=0; j<n; j++){
-          if(mat[i][j] != 0){
-              cnt++;
-          }
-      }
-  }
-      
-      int spmat[cnt+1][3];
-      spmat[0][0]=n;
-      spmat[0][1]=n;
-      spmat[0][2]=cnt;
-      int k=1;
-      for(int i=0; i<n; i++){
-      for(int j=0; j<n; j++){
-          if(mat[i][j] != 0){
-              spmat[k][0]=i;
-              spmat[k][1]=j;
-              spmat[k][2]=mat[i][j];
-              k++;
-          }
-      }
-      
-  }
-  int cnt2=0;
-  for(int i=0; i<n; i++){
-      for(int j=0; j<n; j++){
-          if(mat2[i][j] != 0){
-              cnt2++;
-          }
-      }
-  }
-  
-  int spmat2[cnt2+1][3];
-      spmat2[0][0]=n;
-      spmat2[0][1]=n;
-      spmat2[0][2]=cnt2;
-      k=1;
-      for(int i=0; i<n; i++){
-      for(int j=0; j<n; j++){
-          if(mat2[i][j] != 0){
-              spmat2[k][0]=i;
-              spmat2[k][1]=j;
-              spmat2[k][2]=mat2[i][j];
-              k++;
-          }
-      }
-      }
-      
-  int trp[cnt+1][3];
-  
-  Display2D(spmat,cnt+1);
-  cout<<endl;
-  Transpose(spmat,trp,cnt+1);
-  Display2D(trp,cnt+1);
-  
-  int addmat[50][3];
-  cout<<endl<<endl;
-  AddSparse(spmat,spmat2,addmat);
-   Display2D(addmat,addmat[0][2]+1);
-  
-  int multmat[50][3];
-  cout<<endl<<endl;
-  MultiplySparse(spmat,spmat2,multmat);
-   Display2D(multmat,multmat[0][2]+1);
+    int mat[4][4] = {{0, 8, 9}, {3, 0, 0}, {0, 0, 7}, {2, 4, 5}};
+    int mat2[4][4] = {{1, 9, 0}, {7, 0, 0}, {0, 8, 9}, {0, 0, 0}};
+    int n = 4, c1 = 0, c2 = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (mat[i][j] != 0)
+                c1++;
+    int **sp1 = new int *[c1 + 1];
+    for (int i = 0; i <= c1; i++)
+        sp1[i] = new int[3];
+    sp1[0][0] = n;
+    sp1[0][1] = n;
+    sp1[0][2] = c1;
+    int k = 1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (mat[i][j] != 0)
+            {
+                sp1[k][0] = i;
+                sp1[k][1] = j;
+                sp1[k][2] = mat[i][j];
+                k++;
+            }
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (mat2[i][j] != 0)
+                c2++;
+    int **sp2 = new int *[c2 + 1];
+    for (int i = 0; i <= c2; i++)
+        sp2[i] = new int[3];
+    sp2[0][0] = n;
+    sp2[0][1] = n;
+    sp2[0][2] = c2;
+    k = 1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (mat2[i][j] != 0)
+            {
+                sp2[k][0] = i;
+                sp2[k][1] = j;
+                sp2[k][2] = mat2[i][j];
+                k++;
+            }
 
+    int **tr = new int *[c1 + 1];
+    for (int i = 0; i <= c1; i++)
+        tr[i] = new int[3];
+    Transpose(sp1, tr, c1 + 1);
+
+    int **add = new int *[50];
+    for (int i = 0; i < 50; i++)
+        add[i] = new int[3];
+    AddSparse(sp1, sp2, add);
+
+    int **mul = new int *[50];
+    for (int i = 0; i < 50; i++)
+        mul[i] = new int[3];
+    MultiplySparse(sp1, sp2, mul);
+
+    cout << "Sparse Matrix 1:\n";
+    Display2D(sp1, c1 + 1);
+    cout << "\nTranspose:\n";
+    Display2D(tr, c1 + 1);
+    cout << "\nAddition:\n";
+    Display2D(add, add[0][2] + 1);
+    cout << "\nMultiplication:\n";
+    Display2D(mul, mul[0][2] + 1);
+
+    for (int i = 0; i <= c1; i++)
+        delete[] sp1[i];
+    delete[] sp1;
+    for (int i = 0; i <= c2; i++)
+        delete[] sp2[i];
+    delete[] sp2;
+    for (int i = 0; i <= c1; i++)
+        delete[] tr[i];
+    delete[] tr;
+    for (int i = 0; i < 50; i++)
+        delete[] add[i];
+    delete[] add;
+    for (int i = 0; i < 50; i++)
+        delete[] mul[i];
+    delete[] mul;
     return 0;
 }
